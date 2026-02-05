@@ -49,6 +49,42 @@ const styl = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+
+
+
+
+  favCard: {
+  flexDirection: "row",
+  backgroundColor: "#1c1c1c",
+  marginBottom: 12,
+  borderRadius: 10,
+  padding: 10,
+},
+
+favPoster: {
+  width: 80,
+  height: 120,
+  borderRadius: 8,
+},
+
+favInfo: {
+  flex: 1,
+  marginLeft: 12,
+  justifyContent: "center",
+},
+
+favTitle: {
+  color: "white",
+  fontSize: 16,
+  fontWeight: "600",
+},
+
+favRating: {
+  color: "#f5c518",
+  marginTop: 6,
+  fontSize: 14,
+},
+
 });
 
 export default styl

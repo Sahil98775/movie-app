@@ -8,8 +8,8 @@ const Stack=createNativeStackNavigator();
 export default function NewRelsStack(){
     return(
         <Stack.Navigator>
-            <Stack.Screen name="Upcome" component={NewRelease} options={{headerShown:false}}/>
-            <Stack.Screen name="Details" component={DetailsScreen} />
+            <Stack.Screen name="Upcome" component={NewRelease} options={{headerShown:false,}}/>
+            <Stack.Screen name="Details" component={DetailsScreen} options={{headerShown:false,}} />
         </Stack.Navigator>
 
     );
