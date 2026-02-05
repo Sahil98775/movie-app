@@ -1,11 +1,20 @@
-import {View,Text,FlatList,TouchableOpacity,Image,ActivityIndicator,TextInput,} from "react-native";
-import { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  Image,
+  ActivityIndicator,
+  TextInput,
+} from "react-native";
+import { useEffect, useState, useCallback } from "react";
 import { getPopularMovies, IMAGE_BASE } from "../API/tmdb";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import styl from "../styl";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
 
 type Movie = {
   id: number;
@@ -20,38 +29,44 @@ export type RootStackParamList = {
 };
 
 const HomeScreen = () => {
-  type DetailsScreenProp = NativeStackNavigationProp<RootStackParamList,"Details">;
+  type DetailsScreenProp = NativeStackNavigationProp<
+    RootStackParamList,
+    "Details"
+  >;
 
   const navigation = useNavigation<DetailsScreenProp>();
 
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null); 
+  const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState(" ");
 
-  // const [isFav,setIsFav]=useState(false);
+  const [filterMovies, setFilterMovies] = useState<Movie[]>([]);
   const [favorites, setFavorites] = useState<Movie[]>([]);
 
-  
-  
   useEffect(() => {
     loadMovies();
-    loadFavorites();
   }, []);
-  
+
+  useFocusEffect(
+    useCallback(() => {
+      loadFavorites();
+    }, [])
+  );
 
   const loadMovies = async () => {
     try {
       setLoading(true);
       const data = await getPopularMovies();
       setMovies(data);
+      setFilterMovies(data);
     } catch (err) {
-      setError("Failed to load movies"); 
+      setError("Failed to load movies");
     } finally {
       setLoading(false);
     }
   };
-  
+
   const loadFavorites = async () => {
     try {
       const stored = await AsyncStorage.getItem("favorites");
@@ -62,46 +77,61 @@ const HomeScreen = () => {
       console.log("Error loading favorites", e);
     }
   };
-  
-  const toggleFavorite = async (movie: Movie) => {
-  let updatedFavs: Movie[];
 
-  const isFav = favorites.some(fav => fav.id === movie.id);
-  if (isFav) {
-    updatedFavs = favorites.filter(fav => fav.id !== movie.id);
-  } else {
-    updatedFavs = [...favorites, movie];
-  }
-  setFavorites(updatedFavs);
-  await AsyncStorage.setItem("favorites", JSON.stringify(updatedFavs));
-};  
-  
+  const handleSearch = (text: string) => {
+    setQuery(text);
+    if (text.trim() === "") {
+      setFilterMovies(movies);
+      return;
+    }
+    const filtered = movies.filter((movie) =>
+      movie.title.toLowerCase().includes(text.toLowerCase())
+    );
+    setFilterMovies(filtered);
+  };
+
+  const toggleFavorite = async (movie: Movie) => {
+    let updatedFavs: Movie[];
+
+    const isFav = favorites.some((fav) => fav.id === movie.id);
+    if (isFav) {
+      updatedFavs = favorites.filter((fav) => fav.id !== movie.id);
+    } else {
+      updatedFavs = [...favorites, movie];
+    }
+    setFavorites(updatedFavs);
+    await AsyncStorage.setItem("favorites", JSON.stringify(updatedFavs));
+  };
 
   const renderMovie = ({ item }: { item: Movie }) => {
-    const isFav = favorites.some(fav => fav.id === item.id);
+    const isFav = favorites.some((fav) => fav.id === item.id);
     return (
       <>
         <TouchableOpacity
           style={styl.card}
           onPress={() =>
-            navigation.navigate('Details', {
+            navigation.navigate("Details", {
               movie: item,
             })
           }
         >
           <View style={styl.poster}>
-          <Image
-            source={{ uri: `${IMAGE_BASE}${item.poster_path}` }}
-            style={styl.poster}
-            >
-          </Image>
+            <Image
+              source={{ uri: `${IMAGE_BASE}${item.poster_path}` }}
+              style={styl.poster}
+            ></Image>
 
-        <Ionicons name={isFav ? "heart" : "heart-outline"}  
-        size={25} 
-        style={{ color: isFav ? 'red':'white', position:'absolute', left:125,bottom:220}}
-        onPress={() => toggleFavorite(item)}
-        />
-
+            <Ionicons
+              name={isFav ? "heart" : "heart-outline"}
+              size={25}
+              style={{
+                color: isFav ? "red" : "white",
+                position: "absolute",
+                left: 150,
+                bottom: 220,
+              }}
+              onPress={() => toggleFavorite(item)}
+            />
           </View>
 
           <Text style={styl.title} numberOfLines={1}>
@@ -135,13 +165,13 @@ const HomeScreen = () => {
         <TextInput
           placeholder="Search"
           value={query}
-          onChangeText={setQuery}
+          onChangeText={handleSearch}
           style={{
             borderWidth: 1,
             borderColor: "#ccc",
             padding: 9,
             borderRadius: 8,
-            width: 290,
+            width: "90%",
             backgroundColor: "#a19a9a",
             fontSize: 17,
             fontWeight: "400",
@@ -157,7 +187,7 @@ const HomeScreen = () => {
 
       <View style={styl.dispscr}>
         <FlatList
-          data={movies}
+          data={filterMovies}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderMovie}
           numColumns={2}

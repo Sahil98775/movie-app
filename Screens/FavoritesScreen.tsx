@@ -1,13 +1,11 @@
-import { View,Text,
-  FlatList,
-  Image,
-  TouchableOpacity,
-} from "react-native";
-import { useEffect, useState, useContext } from "react";
+import { View, Text, FlatList, Image, TouchableOpacity } from "react-native";
+import { useEffect, useState, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { IMAGE_BASE } from "../API/tmdb";
 import styl from "../styl";
-
+import { useFocusEffect } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
+import { Position } from "../node_modules/css-tree/node_modules/source-map/source-map.d";
 type Movie = {
   id: number;
   title: string;
@@ -22,6 +20,13 @@ const FavoriteScreen = () => {
     loadFavorites();
   }, []);
 
+  useFocusEffect(
+    useCallback(() => {
+      setFavorites([]);
+      loadFavorites();
+    }, [])
+  );
+
   const loadFavorites = async () => {
     try {
       const stored = await AsyncStorage.getItem("favorites");
@@ -31,6 +36,12 @@ const FavoriteScreen = () => {
     } catch (e) {
       console.log("Error loading favorites", e);
     }
+  };
+  const removeFavorite = async (movieId: number) => {
+    const updated = favorites.filter((movie) => movie.id !== movieId);
+
+    setFavorites(updated);
+    await AsyncStorage.setItem("favorites", JSON.stringify(updated));
   };
 
   const renderItem = ({ item }: { item: Movie }) => {
@@ -47,6 +58,12 @@ const FavoriteScreen = () => {
           </Text>
           <Text style={styl.favRating}>⭐ {item.vote_average}</Text>
         </View>
+        <TouchableOpacity
+          style={{ position: "absolute", right: 10, top: 10 }}
+          onPress={() => removeFavorite(item.id)}
+        >
+          <Ionicons name="heart" size={24} color="red" />
+        </TouchableOpacity>
       </View>
     );
   };
@@ -54,7 +71,13 @@ const FavoriteScreen = () => {
   return (
     <View style={styl.container}>
       {favorites.length === 0 ? (
-        <Text style={{ color: "white", textAlign: "center", marginTop: 40 }}>
+        <Text
+          style={{
+            color: "white",
+            textAlign: "center",
+            marginTop: 40,
+          }}
+        >
           No favorites added ❤️
         </Text>
       ) : (
