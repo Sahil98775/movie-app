@@ -45,6 +45,7 @@ export default function Details() {
       <Image
         source={{ uri: `${IMAGE_BASE}${movie.poster_path}` }}
         style={styles.poster}
+        resizeMode="contain"
       />
       <Text style={styles.title}>{movie.title}</Text>
       <Text style={styles.rating}>⭐ {movie.vote_average}</Text>
@@ -80,7 +81,7 @@ const styles = StyleSheet.create({
   poster: {
     width: "100%",
     height: 450,
-    borderRadius: 16,
+    // borderRadius: 16,
     marginBottom: 16,
   },
   title: {

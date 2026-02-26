@@ -29,10 +29,8 @@ const styl = StyleSheet.create({
   },
   poster: {
     width: "100%",
-    height: 250,
-    borderRadius: 14,
-    backgroundColor: "#312f2feb",
-    padding: 3,
+    aspectRatio: 2 / 3,
+    borderRadius: 12,
   },
   title: {
     color: "white",

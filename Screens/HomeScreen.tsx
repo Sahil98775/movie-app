@@ -15,6 +15,7 @@ import { Ionicons } from "@expo/vector-icons";
 import styl from "../styl";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type Movie = {
   id: number;
@@ -115,23 +116,29 @@ const HomeScreen = () => {
             })
           }
         >
-          <View style={styl.poster}>
+          <View style={{ position: "relative" }}>
             <Image
               source={{ uri: `${IMAGE_BASE}${item.poster_path}` }}
               style={styl.poster}
-            ></Image>
-
-            <Ionicons
-              name={isFav ? "heart" : "heart-outline"}
-              size={25}
-              style={{
-                color: isFav ? "red" : "white",
-                position: "absolute",
-                left: 150,
-                bottom: 220,
-              }}
-              onPress={() => toggleFavorite(item)}
             />
+
+            <TouchableOpacity
+              onPress={() => toggleFavorite(item)}
+              style={{
+                position: "absolute",
+                top: 10,
+                right: 10,
+                backgroundColor: "rgba(0,0,0,0.6)",
+                padding: 6,
+                borderRadius: 20,
+              }}
+            >
+              <Ionicons
+                name={isFav ? "heart" : "heart-outline"}
+                size={20}
+                color={isFav ? "red" : "white"}
+              />
+            </TouchableOpacity>
           </View>
 
           <Text style={styl.title} numberOfLines={1}>
@@ -193,6 +200,10 @@ const HomeScreen = () => {
           numColumns={2}
           columnWrapperStyle={{ justifyContent: "space-between" }}
           showsVerticalScrollIndicator={false}
+          initialNumToRender={6}
+          maxToRenderPerBatch={6}
+          windowSize={5}
+          removeClippedSubviews={true}
         />
       </View>
     </View>

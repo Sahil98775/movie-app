@@ -11,7 +11,7 @@ import styl from "../styl";
 import { IMAGE_BASE } from "../API/tmdb";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-
+import { SafeAreaView } from "react-native-safe-area-context";
 type Movie = {
   id: number;
   title: string;
@@ -55,7 +55,12 @@ const NewRelease = () => {
 
   const renderItem = ({ item }: { item: Movie }) => (
     <TouchableOpacity
-      style={styl.card}
+      style={{
+        flex: 1,
+        marginBottom: 20,
+        marginHorizontal: 5,
+      }}
+      activeOpacity={0.8}
       onPress={() =>
         navigation.navigate("Details", {
           movie: item,
@@ -64,31 +69,43 @@ const NewRelease = () => {
     >
       <View
         style={{
-          width: "100%",
-          marginBottom: 20,
-          backgroundColor: "#312f2feb",
-          padding: 3,
-          borderRadius: 15,
+          backgroundColor: "#1c1c1c",
+          borderRadius: 18,
+          overflow: "hidden",
+          elevation: 5,
         }}
       >
         <Image
           source={{ uri: IMAGE_BASE + item.poster_path }}
           style={{
             width: "100%",
-            height: 250,
-            borderRadius: 15,
+            aspectRatio: 2 / 3,
           }}
+          resizeMode="cover"
         />
-        <Text
-          numberOfLines={1}
-          style={{ color: "white", marginTop: 6, fontWeight: "bold" }}
-        >
-          {item.title}
-        </Text>
-        <Text style={{ color: "#09e0f8a7", fontSize: 13 }}>Releasing on: </Text>
-        <Text style={{ color: "#f5dd06", fontSize: 16 }}>
-          {item.release_date}
-        </Text>
+
+        <View style={{ padding: 10 }}>
+          <Text
+            numberOfLines={1}
+            style={{
+              color: "#FF8C00",
+              fontWeight: "500",
+              fontSize: 20,
+            }}
+          >
+            {item.title}
+          </Text>
+
+          <Text
+            style={{
+              color: "#aaa",
+              fontSize: 15,
+              marginTop: 4,
+            }}
+          >
+            {item.release_date}
+          </Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -98,7 +115,7 @@ const NewRelease = () => {
   }
 
   return (
-    <View style={{ backgroundColor: "black", flex: 1 }}>
+    <SafeAreaView style={{ backgroundColor: "black", flex: 1 }}>
       <FlatList
         data={upComing}
         keyExtractor={(item) => item.id.toString()}
@@ -107,7 +124,7 @@ const NewRelease = () => {
         columnWrapperStyle={{ justifyContent: "space-between" }}
         contentContainerStyle={{ padding: 10 }}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 export default NewRelease;
